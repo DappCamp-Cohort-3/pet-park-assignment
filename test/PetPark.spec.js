@@ -26,6 +26,9 @@ describe("PetPark", function () {
 		owner = accounts[0];
 		account1 = accounts[1];
 
+		// console.log('owner', owner.address);
+		// console.log('borrower', account1.address);
+
 		const PetPark = await ethers.getContractFactory("PetPark");
 		petPark = await PetPark.deploy();
 		await petPark.deployed();
