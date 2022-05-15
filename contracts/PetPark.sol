@@ -27,7 +27,7 @@ contract PetPark {
     function add(AnimalType _animalType, uint _count) public {
         require(AnimalType.None != _animalType, "Invalid animal");
         require(owner == msg.sender, "Not an owner");
-        animalsInFarm[_animalType] += 1;
+        animalsInFarm[_animalType] += _count;
         emit Added(_animalType, _count);
     }
 
