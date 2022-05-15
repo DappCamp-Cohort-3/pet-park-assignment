@@ -2,7 +2,7 @@
 
 ## Goal
 
-The goal of this exercise is to develop a pet park smart contract. The specification of the contract is described in this readme and by the tests at `tests/PetPark.spec.js`.
+The goal of this exercise is to develop a pet park smart contract. The specification of the contract is described in this readme and by the tests at `tests/PetPark.spec.js`. Once you implement the contract correctly, all the tests should pass.
 
 We can have 5 kinds of animals in our pet park
 
