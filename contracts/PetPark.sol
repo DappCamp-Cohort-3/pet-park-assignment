@@ -15,7 +15,7 @@ contract PetPark {
     function add(uint animalType, uint count) public {
         // require(msg.sender);
         if (animalType > 5 || animalType <= 0) {
-            revert("This animal type does not exist.");
+            revert("Invalid animal type");
         }
         park[animalType] += count;
         emit Added(animalType, park[animalType]);
@@ -24,6 +24,9 @@ contract PetPark {
     function borrow(uint age, uint gender, uint animalType) public {
         if (age <= 0) {
             revert("Invalid Age");
+        }
+        if (animalType > 5 || animalType <= 0) {
+            revert("Invalid animal type");
         }
         if (ages[msg.sender] > 0) {
             require(ages[msg.sender] == age, "Error: age does not match previously sent age for this address");
@@ -35,14 +38,19 @@ contract PetPark {
         
         
         if (borrowed_animals[msg.sender] > 0) {
-            giveBackAnimal(msg.sender);
+            revert("Already adopted a pet");
         }
         if ((gender == 0) && (animalType == 1 || animalType == 3)) {
             emit Borrowed(animalType);
         } 
+        if (gender == 0) {
+            revert("Invalid animal for men");
+        }
         if ((gender == 1) && (animalType == 2)) {
             if (age > 40) {
                 emit Borrowed(animalType);
+            } else {
+                revert("Invalid animal for women under 40");
             }
         } 
         if (gender == 1) {
@@ -52,7 +60,7 @@ contract PetPark {
     }
 
     function giveBackAnimal(address user) public {
-        require(borrowed_animals[user] > 0, "Error: This user has not borrowed any pets.");
+        require(borrowed_animals[user] > 0, "No borrowed pets");
         emit Returned(borrowed_animals[user]);
         park[borrowed_animals[user]] += 1;
 
