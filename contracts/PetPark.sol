@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 contract PetPark {
-    mapping(uint => uint) public park;
+    mapping(uint => uint) public animalCounts;
     mapping(address => uint) public ages;
     mapping(address => uint) public genders;
     mapping(address => uint) public borrowed_animals;
@@ -17,8 +17,8 @@ contract PetPark {
         if (animalType > 5 || animalType <= 0) {
             revert("Invalid animal type");
         }
-        park[animalType] += count;
-        emit Added(animalType, park[animalType]);
+        animalCounts[animalType] += count;
+        emit Added(animalType, animalCounts[animalType]);
     }
 
     function borrow(uint age, uint gender, uint animalType) public {
@@ -29,8 +29,8 @@ contract PetPark {
             revert("Invalid animal type");
         }
         if (ages[msg.sender] > 0) {
-            require(ages[msg.sender] == age, "Error: age does not match previously sent age for this address");
-            require(genders[msg.sender] == gender, "Error: gender does not match previously sent gender for this address");
+            require(ages[msg.sender] == age, "Invalid Age");
+            require(genders[msg.sender] == gender, "Invalid Gender");
         } else {
             ages[msg.sender] = age;
             genders[msg.sender] = gender;
@@ -40,12 +40,13 @@ contract PetPark {
         if (borrowed_animals[msg.sender] > 0) {
             revert("Already adopted a pet");
         }
-        if (park[animalType] == 0){
+        if (animalCounts[animalType] == 0){
             revert("Selected animal not available");
         }
         if ((gender == 0)) {
 
             if (animalType == 1 || animalType == 3) {
+                borrowed_animals[msg.sender] += 1;
                 emit Borrowed(animalType);
                 
             } else {
@@ -57,11 +58,13 @@ contract PetPark {
         if ((gender == 1)) {
             if (animalType == 2) {
                 if (age > 40) {
+                    borrowed_animals[msg.sender] += 1;
                     emit Borrowed(animalType);
                 } else {
                     revert("Invalid animal for women under 40");
                 }
             } else {
+                borrowed_animals[msg.sender] += 1;
                 emit Borrowed(animalType);
             }
             
@@ -69,13 +72,13 @@ contract PetPark {
         
     }
 
-    function giveBackAnimal(address user) public {
-        require(borrowed_animals[user] > 0, "No borrowed pets");
-        emit Returned(borrowed_animals[user]);
-        park[borrowed_animals[user]] += 1;
+    function giveBackAnimal() public {
+        require(borrowed_animals[msg.sender] > 0, "No borrowed pets");
+        emit Returned(borrowed_animals[msg.sender]);
+        animalCounts[borrowed_animals[msg.sender]] += 1;
 
-        borrowed_animals[user] = 0;
-        borrowed_animals_count[user] = 0;
+        borrowed_animals[msg.sender] = 0;
+        borrowed_animals_count[msg.sender] = 0;
 
 
     }
