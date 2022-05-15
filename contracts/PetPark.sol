@@ -47,6 +47,7 @@ contract PetPark {
 
             if (animalType == 1 || animalType == 3) {
                 borrowed_animals[msg.sender] += 1;
+                animalCounts[animalType] -= 1;
                 emit Borrowed(animalType);
                 
             } else {
@@ -59,12 +60,14 @@ contract PetPark {
             if (animalType == 2) {
                 if (age > 40) {
                     borrowed_animals[msg.sender] += 1;
+                    animalCounts[animalType] -= 1;
                     emit Borrowed(animalType);
                 } else {
                     revert("Invalid animal for women under 40");
                 }
             } else {
                 borrowed_animals[msg.sender] += 1;
+                animalCounts[animalType] -= 1;
                 emit Borrowed(animalType);
             }
             
