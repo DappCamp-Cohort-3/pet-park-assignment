@@ -17,12 +17,6 @@ contract PetPark {
         owner = msg.sender;
     }
 
-    modifier ownerOnly() {
-        require(msg.sender == owner);
-        _;
-    }
-
-
     function add(uint animalType, uint count) public {
         require(msg.sender == owner, "Not an owner");
         if (animalType > 5 || animalType <= 0) {
