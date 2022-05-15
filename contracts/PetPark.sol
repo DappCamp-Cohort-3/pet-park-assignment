@@ -40,22 +40,32 @@ contract PetPark {
         if (borrowed_animals[msg.sender] > 0) {
             revert("Already adopted a pet");
         }
-        if ((gender == 0) && (animalType == 1 || animalType == 3)) {
-            emit Borrowed(animalType);
-        } 
-        if (gender == 0) {
-            revert("Invalid animal for men");
+        if (park[animalType] == 0){
+            revert("Selected animal not available");
         }
-        if ((gender == 1) && (animalType == 2)) {
-            if (age > 40) {
+        if ((gender == 0)) {
+
+            if (animalType == 1 || animalType == 3) {
                 emit Borrowed(animalType);
+                
             } else {
-                revert("Invalid animal for women under 40");
+                revert("Invalid animal for men");
             }
+            
         } 
-        if (gender == 1) {
-            emit Borrowed(animalType);
-        }
+       
+        if ((gender == 1)) {
+            if (animalType == 2) {
+                if (age > 40) {
+                    emit Borrowed(animalType);
+                } else {
+                    revert("Invalid animal for women under 40");
+                }
+            } else {
+                emit Borrowed(animalType);
+            }
+            
+        } 
         
     }
 
