@@ -36,11 +36,6 @@ Complete this contract with following specifications for each function
 ## Evaluation
 
 -   Create a fork of this repo
--   Create a new branch with your name. You can use the following command
-
-    ```
-    git checkout -b my-name
-    ```
 
 -   Install all dependencies
     ```
