@@ -11,9 +11,20 @@ contract PetPark {
     event Added(uint animalType, uint animalCount);
     event Borrowed(uint animalType);
     event Returned(uint animalType);
+    address owner;
+
+    constructor() {
+        owner = msg.sender;
+    }
+
+    modifier ownerOnly() {
+        require(msg.sender == owner);
+        _;
+    }
+
 
     function add(uint animalType, uint count) public {
-        // require(msg.sender);
+        require(msg.sender == owner, "Not an owner");
         if (animalType > 5 || animalType <= 0) {
             revert("Invalid animal type");
         }
