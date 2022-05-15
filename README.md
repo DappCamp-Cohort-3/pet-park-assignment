@@ -2,7 +2,9 @@
 
 ## Goal
 
-The goal of this exercise is to develop a pet park smart contract. The basic structure of this contract has been laid out for you in `contracts/PetPark.sol`. We can have 5 kinds of animals in our pet park
+The goal of this exercise is to develop a pet park smart contract. The specification of the contract is described in this readme and by the tests at `tests/PetPark.spec.js`.
+
+We can have 5 kinds of animals in our pet park
 
 -   Fish (AnimalType: 1)
 -   Cat (AnimalType: 2)
