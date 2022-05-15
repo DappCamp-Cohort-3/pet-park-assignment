@@ -13,6 +13,7 @@ describe("PetPark", function () {
 		Dog: 3,
 		Rabbit: 4,
 		Parrot: 5,
+		NotInContract: 6
 	};
 
 	const Gender = {
@@ -42,6 +43,12 @@ describe("PetPark", function () {
 			await expect(
 				petPark.connect(owner).add(AnimalType.None, 5)
 			).to.be.revertedWith("Invalid animal");
+		});
+
+		it("should revert when non-existant animal is provided", async function () {
+			await expect(
+				petPark.connect(owner).add(AnimalType.NotInContract, 5)
+			).to.be.reverted
 		});
 
 		it("should emit added event when pet is added", async function () {
