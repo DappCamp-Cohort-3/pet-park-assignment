@@ -47,7 +47,7 @@ Complete this contract with following specifications for each function
     ```
     npm test
     ```
--   Create a pull request from your forked repo to main branch of original repo to run the github workflow.
+-   Create a pull request from your forked repo to main branch of original repo to run the github workflow. The name of the pull request should be in the format `YOUR_NAME - Pet Park Assignment`
 
 ## Note
 
