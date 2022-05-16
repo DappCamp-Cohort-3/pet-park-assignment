@@ -20,7 +20,6 @@ contract PetPark {
         uint age;
         uint gender;
         uint animalTypeIdx;
-        uint count;
     }
 
     mapping(uint => uint) animalCountMap;
@@ -82,8 +81,7 @@ contract PetPark {
         borrowers[msg.sender] = Borrower({
             age: age,
             gender: gender,
-            animalTypeIdx: animalTypeIdx,
-            count: animalCountMap[animalTypeIdx]
+            animalTypeIdx: animalTypeIdx
         });
         emit Borrowed(animalTypeIdx);
     }
