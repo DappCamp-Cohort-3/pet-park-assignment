@@ -25,8 +25,13 @@ contract PetPark {
         owner = msg.sender;
     }
 
-    function add(uint _animalType, uint _count) external {
+    modifier onlyOwner() {
         require(owner == msg.sender, "Not an owner");
+
+        _;
+    }
+
+    function add(uint _animalType, uint _count) external onlyOwner {
         AnimalTypes currentType = AnimalTypes(_animalType);
         require(AnimalTypes.None != currentType, "Invalid animal");
 
