@@ -21,8 +21,14 @@ contract PetPark is Ownable {
         _;
     }
 
+    struct Borrow {
+        uint8 age;
+        uint8 gender;
+        uint8 animalType;
+    }
+
     mapping(uint8 => uint256) private _animalCounts;
-    mapping(address => uint8) private _ownerAnimal;
+    mapping(address => Borrow) private _ownerBorrow;
 
     event Added(uint8 animalType, uint256 count);
     event Borrowed(uint8 animalType);
@@ -51,32 +57,54 @@ contract PetPark is Ownable {
         uint8 _animalType
     ) external validRange(_animalType, 1, 5) {
         require(_age > 0, "Invalid Age");
+        if (_ownerBorrow[msg.sender].animalType > 0) {
+            require(_ownerBorrow[msg.sender].age == _age, "Invalid Age");
+
+            require(
+                _ownerBorrow[msg.sender].gender == _gender,
+                "Invalid Gender"
+            );
+        }
         require(
             _animalCounts[_animalType] > 0,
             "Selected animal not available"
         );
-        // require(
-        //     !(_gender == 1) && _animalType == ANIMAL_TYPE_CAT,
-        //     "Invalid animal for women under 40"
-        // );
-        require(_ownerAnimal[msg.sender] == 0, "Already adopted a pet");
+        require(
+            _ownerBorrow[msg.sender].animalType == 0,
+            "Already adopted a pet"
+        );
+
+        // "Invalid animal for men"
+
+        if (_gender == 1) {
+            // Women can borrow every kind, but women aged under 40 are not allowed to borrow a `Cat`.
+            require(
+                _age >= 40 || _animalType != ANIMAL_TYPE_CAT,
+                "Invalid animal for women under 40"
+            );
+        } else {
+            // Men can borrow only `Dog` and `Fish`.
+            require(
+                _animalType == ANIMAL_TYPE_FISH ||
+                    _animalType == ANIMAL_TYPE_DOG,
+                "Invalid animal for men"
+            );
+        }
         // require(
         //     !(_gender == 0) && _animalType == ANIMAL_TYPE_CAT,
         //     "Invalid animal for women under 40"
         // );
 
         _animalCounts[_animalType] -= 1;
-        _ownerAnimal[msg.sender] = _animalType;
+        _ownerBorrow[msg.sender] = Borrow(_age, _gender, _animalType);
 
         emit Borrowed(_animalType);
-        // Men can borrow only `Dog` and `Fish`.
-        // Women can borrow every kind, but women aged under 40 are not allowed to borrow a `Cat`.
     }
 
     function giveBackAnimal() external {
-        uint8 animalType = _ownerAnimal[msg.sender];
+        uint8 animalType = _ownerBorrow[msg.sender].animalType;
         require(animalType != 0, "No borrowed pets");
-        delete _ownerAnimal[msg.sender];
+        delete _ownerBorrow[msg.sender];
         _animalCounts[animalType] += 1;
     }
 }
