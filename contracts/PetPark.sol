@@ -91,11 +91,11 @@ contract PetPark
             }
         }
 
-        // allow borrow of existing animals only
+        // allow borrowing of existing animals only
         require (contains_value, "Selected animal not available");
 
-        // check if already borrowed an animal
-        contains_value = false;
+        // check if signer already borrowed an animal
+        contains_value = false; // reuse previously declared variable
 
         for (uint i = 0; i < borrowers.length; ++i)
         {
@@ -151,6 +151,7 @@ contract PetPark
     function giveBackAnimal()
     public
     {
+        // check signer borrowed the animal and store animal type
         AnimalType animal = AnimalType.NONE;
 
         bool contains_value = false;
@@ -165,10 +166,11 @@ contract PetPark
             }
         }
 
+        // sanity checks
         require (contains_value, "No borrowed pets");
         require (animal != AnimalType.NONE, "No borrowed pets");
 
-        // reset the type of the first "borrowed" pet
+        // reset the type of the first "borrowed" pet to the type borrowed by the signer
         for (uint i = 0; i < petPark.length; ++i) { if (petPark[i] == AnimalType.BORROWED) { petPark[i] = animal; } }
     }
 }
