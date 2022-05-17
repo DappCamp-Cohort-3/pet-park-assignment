@@ -88,6 +88,10 @@ contract PetPark {
         noBoysAllowed(_gender, _animal)
         notBorrowing
     {
+        require(
+            (_animal == AnimalType.Cat && age >= 40 && _gender == Gender.Female), 
+            "Invalid animal for women under 40"
+        );
         animalCount[_animal] = animalCount[_animal] - 1;
         isBorrowing[msg.sender] = _animal;
         emit Borrowed(_animal);
