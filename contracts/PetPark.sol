@@ -16,7 +16,7 @@ contract PetPark
 
     struct Borrower
     {
-        uint      age;
+        uint8      age;
         AnimalType animal;
         bool       isFemale;
     }
@@ -24,11 +24,11 @@ contract PetPark
     // -- STACK  ------------------------------
     address private owner;
 
-    mapping (AnimalType => uint)     private counts;    // stores number of "instances" of each animal
+    mapping (AnimalType => uint8)    private counts;    // stores number of "instances" of each animal
     mapping (address    => Borrower) private borrowers; // stores active borrowers
 
     // -- EVENTS ------------------------------
-    event Added    (AnimalType _type, uint _count);
+    event Added    (AnimalType _type, uint8 _count);
     event Borrowed (AnimalType _type);
     event Returned (AnimalType _type);
 
@@ -45,7 +45,7 @@ contract PetPark
         _;
     }
 
-    modifier validAge(uint _age)
+    modifier validAge(uint8 _age)
     {
         require (_age > 0, "Invalid Age");
         _;
@@ -85,7 +85,7 @@ contract PetPark
     Only contract owner can call
     Emits event Added with parameters AnimalType and Count
     */
-    function add(AnimalType _type, uint _count)
+    function add(AnimalType _type, uint8 _count)
     public
     validAddress(msg.sender)
     validAnimal(_type)
@@ -114,7 +114,7 @@ contract PetPark
     Takes AnimalType
     Restricts borrowing of Cats by females under 40
     */
-    function _revertIfFemaleBorrowRestricted(AnimalType _type, uint _age)
+    function _revertIfFemaleBorrowRestricted(AnimalType _type, uint8 _age)
     internal
     pure
     {
@@ -131,7 +131,7 @@ contract PetPark
     */
     function borrow
     (
-        uint      _age
+        uint8      _age
     ,   bool       _isFemale
     ,   AnimalType _type
     )
