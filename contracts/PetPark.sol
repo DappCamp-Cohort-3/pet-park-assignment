@@ -7,11 +7,11 @@ contract PetPark
     enum AnimalType
     {
         NONE
-    ,   Fish
-    ,   Cat
-    ,   Dog
-    ,   Rabbit
-    ,   Parrot
+    ,   FISH
+    ,   CAT
+    ,   DOG
+    ,   RABBIT
+    ,   PARROT
     }
 
     struct Borrower
@@ -89,11 +89,11 @@ contract PetPark
             revert ("Already adopted a pet");
         }
 
-        // allow MEN to borrow only Dog and Fish
-        if (!_isFemale && _type != AnimalType.Dog && _type != AnimalType.Fish) { revert("Invalid animal for men"); }
+        // allow MEN to borrow only DOG and FISH
+        if (!_isFemale && _type != AnimalType.DOG && _type != AnimalType.FISH) { revert("Invalid animal for men"); }
 
-        // restrict WOMEN under 40 from borrowing Cat
-        if (_isFemale && _age < 40 && _type == AnimalType.Cat) { revert("Invalid animal for women under 40"); }
+        // restrict WOMEN under 40 from borrowing CAT
+        if (_isFemale && _age < 40 && _type == AnimalType.CAT) { revert("Invalid animal for women under 40"); }
 
         // store borrower details, to check on next call
         borrowers[msg.sender] =
