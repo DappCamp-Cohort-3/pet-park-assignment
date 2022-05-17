@@ -19,7 +19,6 @@ contract PetPark
 
     struct Borrower
     {
-        // address    id;
         uint       age;
         AnimalType animal;
         bool       isFemale;
@@ -82,15 +81,7 @@ contract PetPark
         // check pet park contains animal type requested
         bool contains_value = false;
 
-        for (uint i = 0; i < petPark.length; ++i)
-        {
-            if (petPark[i] == _type)
-            {
-                contains_value = true;
-
-                break;
-            }
-        }
+        for (uint i = 0; i < petPark.length; ++i) { if (petPark[i] == _type) { contains_value = true; break; } }
 
         // allow borrowing of existing animals only
         require (contains_value, "Selected animal not available");
@@ -128,10 +119,7 @@ contract PetPark
         });
 
         // decrease pet count by setting type to "borrowed"
-        for (uint i = 0; /* .. */; ++i)
-        {
-            if (petPark[i] == _type) { petPark[i] = AnimalType.BORROWED; break; }
-        }
+        for (uint i = 0; /* .. */; ++i) { if (petPark[i] == _type) { petPark[i] = AnimalType.BORROWED; break; } }
 
         // notify subscribers
         emit Borrowed(_type);
