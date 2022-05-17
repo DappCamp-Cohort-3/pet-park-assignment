@@ -133,5 +133,8 @@ contract PetPark
 
         // increase pet count
         ++counts[borrower.animal];
+
+        // remove borrower from storage
+        delete borrowers[msg.sender];
     }
 }
