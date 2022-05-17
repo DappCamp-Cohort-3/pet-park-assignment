@@ -30,6 +30,7 @@ contract PetPark
     // -- EVENTS ------------------------------
     event Added    (AnimalType _type, uint _count);
     event Borrowed (AnimalType _type);
+    // event Returned (AnimalType _type);               // test is missing; commented-out
 
     // -- CONSTRUCTORS ------------------------
     constructor()
@@ -150,5 +151,9 @@ contract PetPark
 
         // remove borrower from storage
         delete borrowers[msg.sender];
+
+        // the test for event Returned is missing; commented code
+        // // notify subscribers
+        // emit Returned(_type);
     }
 }
