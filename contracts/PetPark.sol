@@ -42,8 +42,8 @@ contract PetPark
     public
     {
         // sanity checks
-        require (msg.sender == owner, "Not an owner");
-        require (uint(_type) > 0    , "Invalid animal");
+        require (msg.sender == owner     , "Not an owner");
+        require (_type != AnimalType.NONE, "Invalid animal");
 
         // populate pet park (just store count)
         counts[_type] += _count;
@@ -60,6 +60,20 @@ contract PetPark
         return counts[_type];
     }
 
+    function _revertIfMaleBorrowRestricted(AnimalType _type)
+    internal
+    pure
+    {
+        if (_type != AnimalType.DOG && _type != AnimalType.FISH) { revert("Invalid animal for men"); }
+    }
+
+    function _revertIfFemaleBorrowRestricted(AnimalType _type, uint _age)
+    internal
+    pure
+    {
+        if (_age < 40 && _type == AnimalType.CAT) { revert("Invalid animal for women under 40"); }
+    }
+
     function borrow
     (
         uint       _age
@@ -69,9 +83,9 @@ contract PetPark
     public
     {
         // sanity checks
-        require (_age > 0          , "Invalid Age");
-        require (uint(_type) > 0   , "Invalid animal type");
-        require (counts[_type] != 0, "Selected animal not available");
+        require (_age > 0                , "Invalid Age");
+        require (_type != AnimalType.NONE, "Invalid animal type");
+        require (counts[_type] != 0      , "Selected animal not available");
 
         Borrower memory borrower = borrowers[msg.sender];
 
@@ -89,11 +103,11 @@ contract PetPark
             revert ("Already adopted a pet");
         }
 
-        // allow MEN to borrow only DOG and FISH
-        if (!_isFemale && _type != AnimalType.DOG && _type != AnimalType.FISH) { revert("Invalid animal for men"); }
-
         // restrict WOMEN under 40 from borrowing CAT
-        if (_isFemale && _age < 40 && _type == AnimalType.CAT) { revert("Invalid animal for women under 40"); }
+        if (_isFemale) { _revertIfFemaleBorrowRestricted(_type, _age); }
+
+        // restrict MEN to borrow only DOG and FISH
+        else           { _revertIfMaleBorrowRestricted(_type); }
 
         // store borrower details, to check on next call
         borrowers[msg.sender] =
