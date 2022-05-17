@@ -123,7 +123,7 @@ describe("PetPark", function () {
 			await petPark
 				.connect(account1)
 				.borrow(24, Gender.Male, AnimalType.Fish);
-
+            
 			await expect(
 				petPark
 					.connect(account1)
@@ -181,9 +181,10 @@ describe("PetPark", function () {
 			let reducedPetCount = await petPark.animalCounts(AnimalType.Fish);
 			reducedPetCount = reducedPetCount.toNumber();
 
-			await petPark.connect(account1).giveBackAnimal();
+            await petPark.connect(account1).giveBackAnimal();
 			let currentPetCount = await petPark.animalCounts(AnimalType.Fish);
 			currentPetCount = currentPetCount.toNumber();
+
 
 			expect(reducedPetCount).to.equal(currentPetCount - 1);
 		});
