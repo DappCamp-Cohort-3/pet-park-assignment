@@ -7,14 +7,11 @@ contract PetPark
     enum AnimalType
     {
         NONE
-
     ,   Fish
     ,   Cat
     ,   Dog
     ,   Rabbit
     ,   Parrot
-
-    ,   BORROWED
     }
 
     struct Borrower
@@ -25,10 +22,10 @@ contract PetPark
     }
 
     // -- STACK  ------------------------------
-    address      private owner;
-    AnimalType[] private petPark;
+    address private owner;
 
-    mapping(address=>Borrower) private borrowers;
+    mapping (AnimalType => uint)     private counts;    // stores number of "instances" of each animal
+    mapping (address    => Borrower) private borrowers; // stores active borrowers
 
     // -- EVENTS ------------------------------
     event Added    (AnimalType _type, uint _count);
@@ -42,28 +39,25 @@ contract PetPark
 
     // -- METHODS  ----------------------------
     function add(AnimalType _type, uint _count)
-    external
+    public
     {
         // sanity checks
         require (msg.sender == owner, "Not an owner");
-        require (uint(_type) > 0, "Invalid animal");
+        require (uint(_type) > 0    , "Invalid animal");
 
-        // populate pet park
-        for (uint i = 0; i != _count; ++i) { petPark.push(_type); }
+        // populate pet park (just store count)
+        counts[_type] += _count;
 
         // notify subscribers
         emit Added(_type, _count);
     }
 
     function animalCounts(AnimalType _type)
-    external
+    public
     view
     returns (uint)
     {
-        uint count = 0;
-        for (uint i = 0; i < petPark.length; ++i) { if (petPark[i] == _type) { ++count; } }
-
-        return count;
+        return counts[_type];
     }
 
     function borrow
@@ -72,21 +66,13 @@ contract PetPark
     ,   bool       _isFemale
     ,   AnimalType _type
     )
-    external
+    public
     {
         // sanity checks
-        require (_age > 0, "Invalid Age");
-        require (uint(_type) > 0, "Invalid animal type");
+        require (_age > 0          , "Invalid Age");
+        require (uint(_type) > 0   , "Invalid animal type");
+        require (counts[_type] != 0, "Selected animal not available");
 
-        // check pet park contains animal type requested
-        bool contains_value = false;
-
-        for (uint i = 0; i < petPark.length; ++i) { if (petPark[i] == _type) { contains_value = true; break; } }
-
-        // allow borrowing of existing animals only
-        require (contains_value, "Selected animal not available");
-
-        // check if signer already borrowed an animal
         Borrower memory borrower = borrowers[msg.sender];
 
         if
@@ -118,19 +104,19 @@ contract PetPark
         ,   animal   : _type
         });
 
-        // decrease pet count by setting type to "borrowed"
-        for (uint i = 0; /* .. */; ++i) { if (petPark[i] == _type) { petPark[i] = AnimalType.BORROWED; break; } }
+        // decrease pet count
+        --counts[_type];
 
         // notify subscribers
         emit Borrowed(_type);
     }
 
     function giveBackAnimal()
-    external
+    public
     {
-        // check signer borrowed the animal
         Borrower memory borrower = borrowers[msg.sender];
 
+        // check signer actually borrowed the animal
         require
         (
             borrower.age != 0 ||
@@ -138,13 +124,14 @@ contract PetPark
         ,   "No borrowed pets"
         );
 
+        // check borrowed animal is valid
         require
         (
-            borrower.animal != AnimalType.NONE && borrower.animal != AnimalType.BORROWED
+            borrower.animal != AnimalType.NONE
         ,   "No borrowed pets"
         );
 
-        // reset the type of the first "borrowed" pet to the type borrowed by the signer
-        for (uint i = 0; i < petPark.length; ++i) { if (petPark[i] == AnimalType.BORROWED) { petPark[i] = borrower.animal; } }
+        // increase pet count
+        ++counts[borrower.animal];
     }
 }
