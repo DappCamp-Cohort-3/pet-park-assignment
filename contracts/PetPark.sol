@@ -22,7 +22,8 @@ contract PetPark
     AnimalType[] private petPark;
 
     // -- EVENTS ------------------------------
-    event Added (AnimalType _type, uint _count);
+    event Added    (AnimalType _type, uint _count);
+    event Borrowed (AnimalType _type);
 
     // -- CONSTRUCTORS ------------------------
     constructor()
