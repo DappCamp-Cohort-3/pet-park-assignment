@@ -67,7 +67,7 @@ describe("PetPark", function () {
 		it("should revert when animal type is invalid", async function () {
 			await expect(
 				petPark.borrow(24, Gender.Male, AnimalType.None)
-			).to.be.revertedWith("Invalid animal type");
+			).to.be.revertedWith("Invalid animal");
 		});
 
 		it("should revert when men attempt to borrow animals other than fish and dog", async function () {
