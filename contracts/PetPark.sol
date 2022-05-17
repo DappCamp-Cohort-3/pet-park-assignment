@@ -17,9 +17,18 @@ contract PetPark
     ,   BORROWED
     }
 
+    struct Borrower
+    {
+        address    id;
+        uint       age;
+        AnimalType animal;
+        bool       isFemale;
+    }
+
     // -- STACK  ------------------------------
     address      private owner;
     AnimalType[] private petPark;
+    Borrower[]   private borrowers;
 
     // -- EVENTS ------------------------------
     event Added    (AnimalType _type, uint _count);
