@@ -138,7 +138,7 @@ contract PetPark
             })
         );
 
-        // decrease pet count by seting type to "borrowed"
+        // decrease pet count by setting type to "borrowed"
         for (uint i = 0; /* .. */; ++i)
         {
             if (petPark[i] == _type) { petPark[i] = AnimalType.BORROWED; break; }
