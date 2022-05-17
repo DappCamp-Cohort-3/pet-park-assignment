@@ -120,8 +120,6 @@ contract PetPark
     validSender()
     validAnimal(_type)
     {
-        // sanity checks
-
         // populate pet park (just store count)
         counts[_type] += _count;
 
