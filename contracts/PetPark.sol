@@ -16,7 +16,7 @@ contract PetPark
 
     struct Borrower
     {
-        uint       age;
+        uint      age;
         AnimalType animal;
         bool       isFemale;
     }
@@ -38,6 +38,38 @@ contract PetPark
         owner = msg.sender;
     }
 
+    // -- MODFIERS ----------------------------
+    modifier validAddress(address _addr)
+    {
+        require(_addr == owner, "Not an owner");
+        _;
+    }
+
+    modifier validAge(uint _age)
+    {
+        require (_age > 0, "Invalid Age");
+        _;
+    }
+
+    modifier validAnimal(AnimalType _type)
+    {
+        require (_type != AnimalType.NONE, "Invalid animal");
+        _;
+    }
+
+    modifier animalAvailable(AnimalType _type)
+    {
+        require (animalCounts(_type) != 0, "Selected animal not available");
+        _;
+    }
+
+    // TODO: should update the test to require the same string as validAnimal modifier
+    modifier validAnimal2(AnimalType _type)
+    {
+        require (_type != AnimalType.NONE, "Invalid animal type");
+        _;
+    }
+
     // -- METHODS  ----------------------------
     function animalCounts(AnimalType _type)
     public
@@ -55,10 +87,10 @@ contract PetPark
     */
     function add(AnimalType _type, uint _count)
     public
+    validAddress(msg.sender)
+    validAnimal(_type)
     {
         // sanity checks
-        require (msg.sender == owner     , "Not an owner");
-        require (_type != AnimalType.NONE, "Invalid animal");
 
         // populate pet park (just store count)
         counts[_type] += _count;
@@ -99,17 +131,15 @@ contract PetPark
     */
     function borrow
     (
-        uint       _age
+        uint      _age
     ,   bool       _isFemale
     ,   AnimalType _type
     )
+    validAge(_age)
+    validAnimal2(_type)
+    animalAvailable(_type)
     public
     {
-        // sanity checks
-        require (_age > 0                , "Invalid Age");
-        require (_type != AnimalType.NONE, "Invalid animal type");
-        require (animalCounts(_type) != 0, "Selected animal not available");
-
         Borrower memory borrower = borrowers[msg.sender];
 
         if
