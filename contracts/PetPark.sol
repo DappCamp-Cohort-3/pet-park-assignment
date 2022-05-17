@@ -39,6 +39,20 @@ contract PetPark
     }
 
     // -- METHODS  ----------------------------
+    function animalCounts(AnimalType _type)
+    public
+    view
+    returns (uint)
+    {
+        return counts[_type];
+    }
+
+    /*
+    Takes AnimalType and Count
+    Stores "instances" of animals in map
+    Only contract owner can call
+    Emits event Added with parameters AnimalType and Count
+    */
     function add(AnimalType _type, uint _count)
     public
     {
@@ -53,14 +67,10 @@ contract PetPark
         emit Added(_type, _count);
     }
 
-    function animalCounts(AnimalType _type)
-    public
-    view
-    returns (uint)
-    {
-        return counts[_type];
-    }
-
+    /*
+    Takes AnimalType
+    Restricts borrowing choices of males to Dogs and Fishes
+    */
     function _revertIfMaleBorrowRestricted(AnimalType _type)
     internal
     pure
@@ -68,6 +78,10 @@ contract PetPark
         if (_type != AnimalType.DOG && _type != AnimalType.FISH) { revert("Invalid animal for men"); }
     }
 
+    /*
+    Takes AnimalType
+    Restricts borrowing of Cats by females under 40
+    */
     function _revertIfFemaleBorrowRestricted(AnimalType _type, uint _age)
     internal
     pure
@@ -75,6 +89,14 @@ contract PetPark
         if (_age < 40 && _type == AnimalType.CAT) { revert("Invalid animal for women under 40"); }
     }
 
+    /*
+    Takes Age, Gender and AnimalType
+    Borrow only one animal at a time -- call giveBackAnimal before borrowing a new animal
+    Men can borrow only Dog and Fish
+    Women under 40 are restricted from borrowing a Cat
+    Throw an error if an address has called this function before using other values for Gender and Age
+    Emits event Borrowed with parameter AnimalType
+    */
     function borrow
     (
         uint       _age
@@ -86,7 +108,7 @@ contract PetPark
         // sanity checks
         require (_age > 0                , "Invalid Age");
         require (_type != AnimalType.NONE, "Invalid animal type");
-        require (counts[_type] != 0      , "Selected animal not available");
+        require (animalCounts(_type) != 0, "Selected animal not available");
 
         Borrower memory borrower = borrowers[msg.sender];
 
@@ -126,6 +148,10 @@ contract PetPark
         emit Borrowed(_type);
     }
 
+    /*
+    Throws an error if user is missing from borrowers
+    Emits event Returned with parameter AnimalType -- needs a test
+    */
     function giveBackAnimal()
     public
     {
