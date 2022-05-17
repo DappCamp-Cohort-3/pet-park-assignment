@@ -64,6 +64,12 @@ contract PetPark
         _;
     }
 
+    modifier animalAvailable(AnimalType _type)
+    {
+        require (animalCounts(_type) != 0, "Selected animal not available");
+        _;
+    }
+
     modifier validGender(AnimalType _type, uint8 _age, bool _isFemale)
     {
         // restrict WOMEN under 40 from borrowing CAT
@@ -101,12 +107,6 @@ contract PetPark
     returns (uint)
     {
         return counts[_type];
-    }
-
-    modifier animalAvailable(AnimalType _type)
-    {
-        require (animalCounts(_type) != 0, "Selected animal not available");
-        _;
     }
 
     /*
