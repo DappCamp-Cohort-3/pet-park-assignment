@@ -42,4 +42,15 @@ contract PetPark
         // notify subscribers
         emit Added(_type, _count);
     }
+
+    function animalCounts(AnimalType _type)
+    public
+    view
+    returns (uint)
+    {
+        uint count = 0;
+        for (uint i = 0; i < petPark.length; ++i) { if (petPark[i] == _type) { ++count; } }
+
+        return count;
+    }
 }
