@@ -42,7 +42,7 @@ contract PetPark
 
     // -- METHODS  ----------------------------
     function add(AnimalType _type, uint _count)
-    public
+    external
     {
         // sanity checks
         require (msg.sender == owner, "Not an owner");
@@ -56,7 +56,7 @@ contract PetPark
     }
 
     function animalCounts(AnimalType _type)
-    public
+    external
     view
     returns (uint)
     {
@@ -72,7 +72,7 @@ contract PetPark
     ,   bool       _isFemale
     ,   AnimalType _type
     )
-    public
+    external
     {
         // sanity checks
         require (_age > 0, "Invalid Age");
@@ -149,7 +149,7 @@ contract PetPark
     }
 
     function giveBackAnimal()
-    public
+    external
     {
         // check signer borrowed the animal and store animal type
         AnimalType animal = AnimalType.NONE;
