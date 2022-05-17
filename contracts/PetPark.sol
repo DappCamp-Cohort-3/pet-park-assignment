@@ -39,9 +39,9 @@ contract PetPark
     }
 
     // -- MODFIERS ----------------------------
-    modifier validAddress(address _addr)
+    modifier validSender()
     {
-        require(_addr == owner, "Not an owner");
+        require(msg.sender == owner, "Not an owner");
         _;
     }
 
@@ -57,16 +57,40 @@ contract PetPark
         _;
     }
 
-    modifier animalAvailable(AnimalType _type)
-    {
-        require (animalCounts(_type) != 0, "Selected animal not available");
-        _;
-    }
-
     // TODO: should update the test to require the same string as validAnimal modifier
     modifier validAnimal2(AnimalType _type)
     {
         require (_type != AnimalType.NONE, "Invalid animal type");
+        _;
+    }
+
+    modifier validGender(AnimalType _type, uint8 _age, bool _isFemale)
+    {
+        // restrict WOMEN under 40 from borrowing CAT
+        if (_isFemale) { _revertIfFemaleBorrowRestricted(_type, _age); }
+
+        // restrict MEN to borrow only DOG and FISH
+        else           { _revertIfMaleBorrowRestricted(_type); }
+        _;
+    }
+
+    modifier validBorrower(uint8 _age, bool _isFemale)
+    {
+        Borrower memory borrower = borrowers[msg.sender];
+
+        if
+        (
+            borrower.age != 0 ||
+            borrower.isFemale != false
+        )
+        {
+            // restrict borrower details
+            require (borrower.age      == _age     , "Invalid Age");
+            require (borrower.isFemale == _isFemale, "Invalid Gender");
+
+            // restrict borrower to one animal
+            revert ("Already adopted a pet");
+        }
         _;
     }
 
@@ -79,6 +103,12 @@ contract PetPark
         return counts[_type];
     }
 
+    modifier animalAvailable(AnimalType _type)
+    {
+        require (animalCounts(_type) != 0, "Selected animal not available");
+        _;
+    }
+
     /*
     Takes AnimalType and Count
     Stores "instances" of animals in map
@@ -86,8 +116,8 @@ contract PetPark
     Emits event Added with parameters AnimalType and Count
     */
     function add(AnimalType _type, uint8 _count)
-    public
-    validAddress(msg.sender)
+    external
+    validSender()
     validAnimal(_type)
     {
         // sanity checks
@@ -138,30 +168,10 @@ contract PetPark
     validAge(_age)
     validAnimal2(_type)
     animalAvailable(_type)
-    public
+    validBorrower(_age, _isFemale)
+    validGender(_type, _age, _isFemale)
+    external
     {
-        Borrower memory borrower = borrowers[msg.sender];
-
-        if
-        (
-            borrower.age != 0 ||
-            borrower.isFemale != false
-        )
-        {
-            // restrict borrower details
-            require (borrower.age      == _age     , "Invalid Age");
-            require (borrower.isFemale == _isFemale, "Invalid Gender");
-
-            // restrict borrower to one animal
-            revert ("Already adopted a pet");
-        }
-
-        // restrict WOMEN under 40 from borrowing CAT
-        if (_isFemale) { _revertIfFemaleBorrowRestricted(_type, _age); }
-
-        // restrict MEN to borrow only DOG and FISH
-        else           { _revertIfMaleBorrowRestricted(_type); }
-
         // store borrower details, to check on next call
         borrowers[msg.sender] =
         Borrower
@@ -183,7 +193,7 @@ contract PetPark
     Emits event Returned with parameter AnimalType
     */
     function giveBackAnimal()
-    public
+    external
     {
         Borrower memory borrower = borrowers[msg.sender];
 
