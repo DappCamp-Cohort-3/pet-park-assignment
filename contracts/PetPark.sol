@@ -30,7 +30,7 @@ contract PetPark
     // -- EVENTS ------------------------------
     event Added    (AnimalType _type, uint _count);
     event Borrowed (AnimalType _type);
-    // event Returned (AnimalType _type);               // test is missing; commented-out
+    event Returned (AnimalType _type);
 
     // -- CONSTRUCTORS ------------------------
     constructor()
@@ -150,7 +150,7 @@ contract PetPark
 
     /*
     Throws an error if user is missing from borrowers
-    Emits event Returned with parameter AnimalType -- needs a test
+    Emits event Returned with parameter AnimalType
     */
     function giveBackAnimal()
     public
@@ -175,11 +175,10 @@ contract PetPark
         // increase pet count
         ++counts[borrower.animal];
 
+        // notify subscribers
+        emit Returned(borrower.animal);
+
         // remove borrower from storage
         delete borrowers[msg.sender];
-
-        // the test for event Returned is missing; commented code
-        // // notify subscribers
-        // emit Returned(_type);
     }
 }
