@@ -187,5 +187,19 @@ describe("PetPark", function () {
 
 			expect(reducedPetCount).to.equal(currentPetCount - 1);
 		});
+
+		it("should emit returned event when valid details are provided", async function () {
+			await petPark.add(AnimalType.Fish, 1);
+
+			await petPark.connect(account1).borrow(24, Gender.Male, AnimalType.Fish);
+
+			await expect(
+				petPark
+					.connect(account1)
+					.giveBackAnimal()
+			)
+			.to.emit(petPark, "Returned")
+			.withArgs(AnimalType.Fish);
+		});
 	});
 });
