@@ -66,6 +66,88 @@ contract PetPark
         return count;
     }
 
+    function borrow
+    (
+        uint       _age
+    ,   bool       _isFemale
+    ,   AnimalType _type
+    )
+    public
+    {
+        // sanity checks
+        require (_age > 0, "Invalid Age");
+        require (uint(_type) > 0, "Invalid animal type");
+
+        // check pet park contains animal type requested
+        bool contains_value = false;
+
+        for (uint i = 0; i < petPark.length; ++i)
+        {
+            if (petPark[i] == _type)
+            {
+                contains_value = true;
+
+                break;
+            }
+        }
+
+        // allow borrow of existing animals only
+        require (contains_value, "Selected animal not available");
+
+        // check if already borrowed an animal
+        contains_value = false;
+
+        for (uint i = 0; i < borrowers.length; ++i)
+        {
+            if (borrowers[i].id == msg.sender)
+            {
+                // restrict borrower details
+                require (borrowers[i].age      == _age     , "Invalid Age");
+                require (borrowers[i].isFemale == _isFemale, "Invalid Gender");
+
+                contains_value = true;
+
+                break;
+            }
+        }
+
+        // restrict borrower to one animal
+        require (!contains_value, "Already adopted a pet");
+
+        // allow MEN to borrow only Dog and Fish
+        if (!_isFemale)
+        {
+            require (_type == AnimalType.Dog || _type == AnimalType.Fish, "Invalid animal for men");
+        }
+
+        // restrict WOMEN under 40 from borrowing Cat
+        if (_isFemale)
+        {
+            if (_age < 40) { require (_type != AnimalType.Cat, "Invalid animal for women under 40"); }
+        }
+
+        // store borrower details, to check on next call
+        borrowers.push
+        (
+            Borrower
+            ({
+                id       : msg.sender
+            ,   age      : _age
+            ,   isFemale : _isFemale
+            ,   animal   : _type
+            })
+        );
+
+        // decrease pet count by seting type to "borrowed"
+        for (uint i = 0; /* .. */; ++i)
+        {
+            if (petPark[i] == _type) { petPark[i] = AnimalType.BORROWED; break; }
+        }
+
+        // notify subscribers
+        emit Borrowed(_type);
+    }
+
     function giveBackAnimal()
     public
     {
