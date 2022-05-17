@@ -13,6 +13,8 @@ contract PetPark
     ,   Dog
     ,   Rabbit
     ,   Parrot
+
+    ,   BORROWED
     }
 
     // -- STACK  ------------------------------
