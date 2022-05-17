@@ -19,7 +19,7 @@ contract PetPark
 
     struct Borrower
     {
-        address    id;
+        // address    id;
         uint       age;
         AnimalType animal;
         bool       isFemale;
@@ -28,7 +28,8 @@ contract PetPark
     // -- STACK  ------------------------------
     address      private owner;
     AnimalType[] private petPark;
-    Borrower[]   private borrowers;
+
+    mapping(address=>Borrower) private borrowers;
 
     // -- EVENTS ------------------------------
     event Added    (AnimalType _type, uint _count);
@@ -95,48 +96,36 @@ contract PetPark
         require (contains_value, "Selected animal not available");
 
         // check if signer already borrowed an animal
-        contains_value = false; // reuse previously declared variable
+        Borrower memory borrower = borrowers[msg.sender];
 
-        for (uint i = 0; i < borrowers.length; ++i)
+        if
+        (
+            borrower.age != 0 ||
+            borrower.isFemale != false
+        )
         {
-            if (borrowers[i].id == msg.sender)
-            {
-                // restrict borrower details
-                require (borrowers[i].age      == _age     , "Invalid Age");
-                require (borrowers[i].isFemale == _isFemale, "Invalid Gender");
+            // restrict borrower details
+            require (borrower.age      == _age     , "Invalid Age");
+            require (borrower.isFemale == _isFemale, "Invalid Gender");
 
-                contains_value = true;
-
-                break;
-            }
+            // restrict borrower to one animal
+            revert ("Already adopted a pet");
         }
-
-        // restrict borrower to one animal
-        require (!contains_value, "Already adopted a pet");
 
         // allow MEN to borrow only Dog and Fish
-        if (!_isFemale)
-        {
-            require (_type == AnimalType.Dog || _type == AnimalType.Fish, "Invalid animal for men");
-        }
+        if (!_isFemale && _type != AnimalType.Dog && _type != AnimalType.Fish) { revert("Invalid animal for men"); }
 
         // restrict WOMEN under 40 from borrowing Cat
-        if (_isFemale)
-        {
-            if (_age < 40) { require (_type != AnimalType.Cat, "Invalid animal for women under 40"); }
-        }
+        if (_isFemale && _age < 40 && _type == AnimalType.Cat) { revert("Invalid animal for women under 40"); }
 
         // store borrower details, to check on next call
-        borrowers.push
-        (
-            Borrower
-            ({
-                id       : msg.sender
-            ,   age      : _age
-            ,   isFemale : _isFemale
-            ,   animal   : _type
-            })
-        );
+        borrowers[msg.sender] =
+        Borrower
+        ({
+            age      : _age
+        ,   isFemale : _isFemale
+        ,   animal   : _type
+        });
 
         // decrease pet count by setting type to "borrowed"
         for (uint i = 0; /* .. */; ++i)
@@ -151,26 +140,23 @@ contract PetPark
     function giveBackAnimal()
     external
     {
-        // check signer borrowed the animal and store animal type
-        AnimalType animal = AnimalType.NONE;
+        // check signer borrowed the animal
+        Borrower memory borrower = borrowers[msg.sender];
 
-        bool contains_value = false;
-        for (uint i = 0; i < borrowers.length; ++i)
-        {
-            if (borrowers[i].id == msg.sender)
-            {
-                contains_value = true;
-                animal = borrowers[i].animal;
+        require
+        (
+            borrower.age != 0 ||
+            borrower.isFemale != false
+        ,   "No borrowed pets"
+        );
 
-                break;
-            }
-        }
-
-        // sanity checks
-        require (contains_value, "No borrowed pets");
-        require (animal != AnimalType.NONE, "No borrowed pets");
+        require
+        (
+            borrower.animal != AnimalType.NONE && borrower.animal != AnimalType.BORROWED
+        ,   "No borrowed pets"
+        );
 
         // reset the type of the first "borrowed" pet to the type borrowed by the signer
-        for (uint i = 0; i < petPark.length; ++i) { if (petPark[i] == AnimalType.BORROWED) { petPark[i] = animal; } }
+        for (uint i = 0; i < petPark.length; ++i) { if (petPark[i] == AnimalType.BORROWED) { petPark[i] = borrower.animal; } }
     }
 }
