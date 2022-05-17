@@ -73,7 +73,7 @@ contract PetPark
     modifier validGender(AnimalType _type, uint8 _age, bool _isFemale)
     {
         // restrict WOMEN under 40 from borrowing CAT
-        if (_isFemale) { if (_age < 40) { require (_type == AnimalType.CAT, "Invalid animal for women under 40"); } }
+        if (_isFemale) { if (_age < 40) { require (_type != AnimalType.CAT, "Invalid animal for women under 40"); } }
 
         // restrict MEN to borrow only DOG and FISH
         else           { require (_type == AnimalType.DOG || _type == AnimalType.FISH, "Invalid animal for men"); }
