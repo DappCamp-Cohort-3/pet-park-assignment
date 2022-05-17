@@ -73,10 +73,10 @@ contract PetPark
     modifier validGender(AnimalType _type, uint8 _age, bool _isFemale)
     {
         // restrict WOMEN under 40 from borrowing CAT
-        if (_isFemale) { _revertIfFemaleBorrowRestricted(_type, _age); }
+        if (_isFemale) { if (_age < 40) { require (_type == AnimalType.CAT, "Invalid animal for women under 40"); } }
 
         // restrict MEN to borrow only DOG and FISH
-        else           { _revertIfMaleBorrowRestricted(_type); }
+        else           { require (_type == AnimalType.DOG || _type == AnimalType.FISH, "Invalid animal for men"); }
         _;
     }
 
@@ -127,28 +127,6 @@ contract PetPark
 
         // notify subscribers
         emit Added(_type, _count);
-    }
-
-    /*
-    Takes AnimalType
-    Restricts borrowing choices of males to Dogs and Fishes
-    */
-    function _revertIfMaleBorrowRestricted(AnimalType _type)
-    internal
-    pure
-    {
-        if (_type != AnimalType.DOG && _type != AnimalType.FISH) { revert("Invalid animal for men"); }
-    }
-
-    /*
-    Takes AnimalType
-    Restricts borrowing of Cats by females under 40
-    */
-    function _revertIfFemaleBorrowRestricted(AnimalType _type, uint8 _age)
-    internal
-    pure
-    {
-        if (_age < 40 && _type == AnimalType.CAT) { revert("Invalid animal for women under 40"); }
     }
 
     /*
