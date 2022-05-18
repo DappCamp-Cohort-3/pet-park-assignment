@@ -24,8 +24,8 @@ contract PetPark
     // -- STACK  ------------------------------
     address private owner;
 
-    mapping (AnimalType => uint8)    private counts;    // stores number of "instances" of each animal
-    mapping (address    => Borrower) private borrowers; // stores active borrowers
+    mapping (AnimalType => uint)     public  animalCounts;  // stores number of "instances" of each animal
+    mapping (address    => Borrower) private borrowers;     // stores active borrowers
 
     // -- EVENTS ------------------------------
     event Added    (AnimalType _type, uint8 _count);
@@ -66,7 +66,7 @@ contract PetPark
 
     modifier animalAvailable(AnimalType _type)
     {
-        require (animalCounts(_type) != 0, "Selected animal not available");
+        require (animalCounts[_type] != 0, "Selected animal not available");
         _;
     }
 
@@ -101,14 +101,6 @@ contract PetPark
     }
 
     // -- METHODS  ----------------------------
-    function animalCounts(AnimalType _type)
-    public
-    view
-    returns (uint)
-    {
-        return counts[_type];
-    }
-
     /*
     Takes AnimalType and Count
     Stores "instances" of animals in map
@@ -121,7 +113,7 @@ contract PetPark
     validAnimal(_type)
     {
         // populate pet park (just store count)
-        counts[_type] += _count;
+        animalCounts[_type] += _count;
 
         // notify subscribers
         emit Added(_type, _count);
@@ -158,7 +150,7 @@ contract PetPark
         });
 
         // decrease pet count
-        --counts[_type];
+        --animalCounts[_type];
 
         // notify subscribers
         emit Borrowed(_type);
@@ -189,7 +181,7 @@ contract PetPark
         );
 
         // increase pet count
-        ++counts[borrower.animal];
+        ++animalCounts[borrower.animal];
 
         // notify subscribers
         emit Returned(borrower.animal);
