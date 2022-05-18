@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 contract PetPark
 {
-    // -- SCAFFOLDING -------------------------
+    /// @dev -- SCAFFOLDING -------------------------
     enum AnimalType
     {
         NONE
@@ -21,24 +21,24 @@ contract PetPark
         bool       isFemale;
     }
 
-    // -- STACK  ------------------------------
+    /// @dev -- STACK  ---------------------------
     address private owner;
 
     mapping (AnimalType => uint)     public  animalCounts;  // stores number of "instances" of each animal
     mapping (address    => Borrower) private borrowers;     // stores active borrowers
 
-    // -- EVENTS ------------------------------
+    /// @dev  -- EVENTS --------------------------
     event Added    (AnimalType _type, uint8 _count);
     event Borrowed (AnimalType _type);
     event Returned (AnimalType _type);
 
-    // -- CONSTRUCTORS ------------------------
+    /// @dev -- CONSTRUCTORS ---------------------
     constructor()
     {
         owner = msg.sender;
     }
 
-    // -- MODFIERS ----------------------------
+    /// @dev -- MODFIERS -------------------------
     modifier validSender()
     {
         require(msg.sender == owner, "Not an owner");
@@ -57,7 +57,7 @@ contract PetPark
         _;
     }
 
-    // TODO: should update the test to require the same string as validAnimal modifier
+    /// @dev TODO: should update the test to require the same string as validAnimal modifier
     modifier validAnimal2(AnimalType _type)
     {
         require (_type != AnimalType.NONE, "Invalid animal type");
@@ -100,13 +100,13 @@ contract PetPark
         _;
     }
 
-    // -- METHODS  ----------------------------
-    /*
-    Takes AnimalType and Count
-    Stores "instances" of animals in map
-    Only contract owner can call
-    Emits event Added with parameters AnimalType and Count
-    */
+    /// @dev -- METHODS  -------------------------
+
+    /// @param  _type - Type of animal to add; see AnimalType enum
+    /// @param  _count - Amount of animals of specified type to create
+    /// @dev Stores "instances" of animals in map
+    ///      Only contract owner can call
+    ///      Emits event Added with parameters AnimalType and Count
     function add(AnimalType _type, uint8 _count)
     external
     validSender()
@@ -119,14 +119,13 @@ contract PetPark
         emit Added(_type, _count);
     }
 
-    /*
-    Takes Age, Gender and AnimalType
-    Borrow only one animal at a time -- call giveBackAnimal before borrowing a new animal
-    Men can borrow only Dog and Fish
-    Women under 40 are restricted from borrowing a Cat
-    Throw an error if an address has called this function before using other values for Gender and Age
-    Emits event Borrowed with parameter AnimalType
-    */
+    /// @param  _age - Borrower's age
+    /// @param  _isFemale - true = female, false = male
+    /// @notice Borrows one animal at a time -- call giveBackAnimal before borrowing a new animal
+    /// @dev    Men can borrow only Dog and Fish
+    ///         Women under 40 are restricted from borrowing a Cat
+    ///         Throw an error if details for msg.sender differ from previous call
+    ///         Emits event Borrowed with parameter AnimalType
     function borrow
     (
         uint8      _age
@@ -156,10 +155,9 @@ contract PetPark
         emit Borrowed(_type);
     }
 
-    /*
-    Throws an error if user is missing from borrowers
-    Emits event Returned with parameter AnimalType
-    */
+    /// @dev Returns a borrowed animal
+    ///      Throws an error if user is missing from borrowers
+    ///      Emits event Returned with parameter AnimalType
     function giveBackAnimal()
     external
     {
