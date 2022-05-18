@@ -3,14 +3,29 @@ pragma solidity ^0.8.0;
 
 contract PetPark {
 
+    enum AnimalType {
+        None, 
+        Fish,
+        Cat,
+        Dog,
+        Rabbit,
+        Parrot
+    }
+
+    enum Gender {
+        Male, 
+        Female
+    }
+
     address public owner;
     struct Adopter {
-        uint Age;
-        uint Gender;
+        uint age;
+        Gender gender;
+        AnimalType animalType;
     }
-    mapping(uint => uint) public animalCounts;
+
+    mapping(AnimalType => uint) public animalCounts;
     mapping(address => Adopter) addressAdopters;
-    mapping(address => uint) addressAnimalTypes;
 
     constructor() {
         owner = msg.sender;
@@ -21,55 +36,52 @@ contract PetPark {
         _;
     }
 
-    modifier validAnimal(uint AnimalType) {
-        require(AnimalType >= 1 && AnimalType <= 5, "Invalid animal");
+    modifier validAnimal(AnimalType _animalType) {
+        require(_animalType > AnimalType.None && _animalType <= AnimalType.Parrot, "Invalid animal");
         _;
     }
 
-    event Added(uint AnimalType, uint Count);
+    event Added(AnimalType _animalType, uint _count);
 
-    function add(uint AnimalType, uint Count) public onlyOwner validAnimal(AnimalType) {
-        animalCounts[AnimalType] += Count;
-        emit Added(AnimalType, Count);
+    function add(AnimalType _animalType, uint _count) public onlyOwner validAnimal(_animalType) {
+        animalCounts[_animalType] += _count;
+        emit Added(_animalType, _count);
     }
 
-    event Borrowed(uint AnimalType);
+    event Borrowed(AnimalType _animalType);
 
-    function borrow(uint Age, uint Gender, uint AnimalType) public {
-        require(Age > 0, "Invalid Age");
-
-        require(AnimalType >= 1 && AnimalType <= 5, "Invalid animal type");
+    function borrow(uint _age, Gender _gender, AnimalType _animalType) public {
+        require(_age > 0, "Invalid Age");
+        require(_animalType > AnimalType.None && _animalType <= AnimalType.Parrot, "Invalid animal type");
 
         Adopter storage existingAdopter = addressAdopters[msg.sender];
-        if (existingAdopter.Age != 0) {
-            require (existingAdopter.Age == Age, "Invalid Age");
-            require (existingAdopter.Gender == Gender, "Invalid Gender");
-        } else {
-            addressAdopters[msg.sender] = Adopter(Age, Gender);
+        if (existingAdopter.age != 0) {
+            require (existingAdopter.age == _age, "Invalid Age");
+            require (existingAdopter.gender == _gender, "Invalid Gender");
         }
 
-        require(animalCounts[AnimalType] > 0, "Selected animal not available");
+        require(animalCounts[_animalType] > 0, "Selected animal not available");
 
-        require(addressAnimalTypes[msg.sender] == 0, "Already adopted a pet");
+        require(existingAdopter.animalType == AnimalType.None, "Already adopted a pet");
 
-        if (Gender == 0) {
-            require((AnimalType == 1 || AnimalType == 3), "Invalid animal for men");
+        if (_gender == Gender.Male) {
+            require((_animalType == AnimalType.Fish || _animalType == AnimalType.Dog), "Invalid animal for men");
         }
 
-        if (Gender == 1 && Age < 40) {
-            require(AnimalType != 2, "Invalid animal for women under 40");
+        if (_gender == Gender.Female && _age < 40) {
+            require(_animalType != AnimalType.Cat, "Invalid animal for women under 40");
         }
 
-        addressAnimalTypes[msg.sender] = AnimalType;
-        animalCounts[AnimalType] -= 1;
+        addressAdopters[msg.sender] = Adopter(_age, _gender, _animalType);
+        animalCounts[_animalType] -= 1;
 
-        emit Borrowed(AnimalType);
+        emit Borrowed(_animalType);
     }
 
     function giveBackAnimal() public {
-        require(addressAnimalTypes[msg.sender] != 0, "No borrowed pets");
-        uint animalType = addressAnimalTypes[msg.sender];
+        require(addressAdopters[msg.sender].animalType != AnimalType.None, "No borrowed pets");
+        AnimalType animalType = addressAdopters[msg.sender].animalType;
         animalCounts[animalType] += 1;
-        addressAnimalTypes[msg.sender] = 0;
+        addressAdopters[msg.sender].animalType = AnimalType.None;
     }
 }
