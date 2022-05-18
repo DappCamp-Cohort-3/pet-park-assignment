@@ -42,7 +42,7 @@ contract PetPark {
 
     event Added(uint indexed animalType, uint indexed animalCount);
 
-    function add(uint _animalType, uint _count) public onlyOwner {
+    function add(uint _animalType, uint _count) external onlyOwner {
         require(_animalType != 0, "Invalid animal");
         animalCounts[_animalType] += _count;
         emit Added(_animalType, animalCounts[_animalType]);
@@ -54,7 +54,7 @@ contract PetPark {
         uint _age,
         uint _gender,
         uint _animalType
-    ) public {
+    ) external {
         require(_age != 0, "Invalid Age");
         require(_animalType != 0, "Invalid animal type");
         require(animalCounts[_animalType] > 0, "Selected animal not available");
