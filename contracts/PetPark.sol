@@ -29,6 +29,7 @@ contract PetPark {
 
     event Added(AnimalType, uint);
     event Borrowed(AnimalType);
+    event Returned(AnimalType);
 
     constructor() {
         owner = msg.sender;
@@ -87,8 +88,10 @@ contract PetPark {
     }
 
     function giveBackAnimal() public {
-        require(borrowers[msg.sender].animal != AnimalType.None, "No borrowed pets");
-        animalsByType[borrowers[msg.sender].animal] += 1;
+        Borrower memory borrower = borrowers[msg.sender];
+        require(borrower.animal != AnimalType.None, "No borrowed pets");
+        animalsByType[borrower.animal] += 1;
         borrowers[msg.sender].animal = AnimalType.None;
+        emit Returned(borrower.animal);
     }
 }
