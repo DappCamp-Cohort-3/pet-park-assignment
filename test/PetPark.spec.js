@@ -99,7 +99,6 @@ describe("PetPark", function () {
 		it("should revert when pet is already borrowed", async function () {
 			await petPark.add(AnimalType.Fish, 5);
 			await petPark.add(AnimalType.Cat, 5);
-
 			await petPark
 				.connect(account1)
 				.borrow(24, Gender.Male, AnimalType.Fish);
@@ -151,7 +150,6 @@ describe("PetPark", function () {
 
 		it("should decrease pet count when valid details are provided", async function () {
 			await petPark.add(AnimalType.Fish, 5);
-
 			let originalPetCount = await petPark.animalCounts(AnimalType.Fish);
 			originalPetCount = originalPetCount.toNumber();
 			await petPark
@@ -180,7 +178,6 @@ describe("PetPark", function () {
 				.borrow(24, Gender.Male, AnimalType.Fish);
 			let reducedPetCount = await petPark.animalCounts(AnimalType.Fish);
 			reducedPetCount = reducedPetCount.toNumber();
-
 			await petPark.connect(account1).giveBackAnimal();
 			let currentPetCount = await petPark.animalCounts(AnimalType.Fish);
 			currentPetCount = currentPetCount.toNumber();
