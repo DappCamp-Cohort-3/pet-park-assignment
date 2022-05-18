@@ -1,5 +1,5 @@
 //SPDX-License-Identifier: Unlicense
-pragma solidity ^0.8.4;
+pragma solidity ^0.8.0;
 
 // Uncomment while developing code for testing.
 // import "hardhat/console.sol";
