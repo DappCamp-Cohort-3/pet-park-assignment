@@ -24,8 +24,9 @@ contract PetPark
     // -- STACK  ------------------------------
     address private owner;
 
-    mapping (AnimalType => uint8)    private counts;    // stores number of "instances" of each animal
-    mapping (address    => Borrower) private borrowers; // stores active borrowers
+    uint8[] private counts = [0,0,0,0,0,0];          // stores number of "instances" of each animal
+
+    mapping (address => Borrower) private borrowers; // stores active borrowers
 
     // -- EVENTS ------------------------------
     event Added    (AnimalType _type, uint8 _count);
@@ -106,7 +107,7 @@ contract PetPark
     view
     returns (uint)
     {
-        return counts[_type];
+        return counts[uint8(_type)];
     }
 
     /*
@@ -121,7 +122,7 @@ contract PetPark
     validAnimal(_type)
     {
         // populate pet park (just store count)
-        counts[_type] += _count;
+        counts[uint8(_type)] += _count;
 
         // notify subscribers
         emit Added(_type, _count);
@@ -158,7 +159,7 @@ contract PetPark
         });
 
         // decrease pet count
-        --counts[_type];
+        --counts[uint8(_type)];
 
         // notify subscribers
         emit Borrowed(_type);
@@ -189,7 +190,7 @@ contract PetPark
         );
 
         // increase pet count
-        ++counts[borrower.animal];
+        ++counts[uint8(borrower.animal)];
 
         // notify subscribers
         emit Returned(borrower.animal);
