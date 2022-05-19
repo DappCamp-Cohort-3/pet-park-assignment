@@ -20,7 +20,6 @@ contract PetPark {
         uint age;
         Gender gender;
         AnimalType animal;
-        bool isRegistered;
     }
 
     mapping(AnimalType => uint) animalsByType;
@@ -50,7 +49,7 @@ contract PetPark {
         _;
     }
 
-    function animalCounts(AnimalType _animalType) external view returns (uint){
+    function animalCounts(AnimalType _animalType) public view returns (uint){
         return animalsByType[_animalType];
     }
 
@@ -64,7 +63,7 @@ contract PetPark {
 
         Borrower memory borrower = borrowers[msg.sender];
 
-        if (borrower.isRegistered) {
+        if (borrower.age != 0) { // Already registered
             require(borrower.age == _age, "Invalid Age");
             require(borrower.gender == _gender, "Invalid Gender");
             require(borrower.animal == AnimalType.None, "Already adopted a pet");
@@ -78,8 +77,8 @@ contract PetPark {
             require(_animalType != AnimalType.Cat, "Invalid animal for women under 40");
         }
 
-        if (!borrower.isRegistered) {
-            borrowers[msg.sender] = Borrower(_age,_gender, _animalType, true);
+        if (borrower.age == 0) { // Not yet registered
+            borrowers[msg.sender] = Borrower(_age,_gender, _animalType);
         } else {
             borrowers[msg.sender].animal = _animalType;
         }
@@ -87,7 +86,7 @@ contract PetPark {
         emit Borrowed(_animalType);
     }
 
-    function giveBackAnimal() public {
+    function giveBackAnimal() external {
         Borrower memory borrower = borrowers[msg.sender];
         require(borrower.animal != AnimalType.None, "No borrowed pets");
         animalsByType[borrower.animal] += 1;
