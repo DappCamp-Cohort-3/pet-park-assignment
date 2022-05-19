@@ -13,15 +13,18 @@ contract PetPark {
         Parrot
     }
     enum Gender {
-        None,
         Male,
         Female
     }
 
+    struct User {
+        AnimalType animal;
+        Gender gender;
+        uint age;
+    }
+
     mapping(AnimalType => uint) public animalCounts;
-    mapping(address => AnimalType) public isBorrowing;
-    mapping(address => uint) public userAge;
-    mapping(address => Gender) public userGender;
+    mapping(address => User) public userInfo;
 
     event Added(AnimalType animal, uint count);
     event Borrowed(AnimalType animal);
@@ -46,28 +49,13 @@ contract PetPark {
         _;
     }
 
-    modifier isValidAnimal2(AnimalType animal) {
+    modifier isValidAnimalType(AnimalType animal) {
         require(animal != AnimalType.None, "Invalid animal type");
         _;
     }
 
     modifier isAvailableAnimal(AnimalType animal) {
         require(animalCounts[animal] > 0, "Selected animal not available");
-        _;
-    }
-
-    modifier alreadyBorrowing() {
-        require(isBorrowing[msg.sender] != AnimalType.None, "No borrowed pets");
-        _;
-    }
-
-    modifier sameAge(uint age) {
-        require(userAge[msg.sender] == age, "Invalid Age");
-        _;
-    }
-
-    modifier sameGender(Gender gender) {
-        require(userGender[msg.sender] == gender, "Invalid Gender");
         _;
     }
 
@@ -81,54 +69,58 @@ contract PetPark {
     }
 
     function borrow(
-        uint age,
+        uint _age,
         Gender _gender,
         AnimalType _animal
     )
         external
-        isOldEnough(age)
-        isValidAnimal2(_animal)
+        isOldEnough(_age)
+        isValidAnimalType(_animal)
         isAvailableAnimal(_animal)
     {
-        if (_gender == Gender.Male) {
-            if (_animal != AnimalType.Fish || _animal != AnimalType.Dog) {
+        User storage u = userInfo[msg.sender];
+
+        if (u.age != _age && u.age != 0) {
+            revert("Invalid Age");
+        }
+
+        if (u.gender != _gender && _gender == Gender.Female) {
+            revert("Invalid Gender");
+        }
+
+        u.age = _age;
+        u.gender = _gender;
+
+        if (u.animal != AnimalType.None) {
+            revert("Already adopted a pet");
+        }
+
+        if (
+            u.gender == Gender.Female && _animal == AnimalType.Cat && u.age < 40
+        ) {
+            revert("Invalid animal for women under 40");
+        }
+
+        if (u.gender == Gender.Male) {
+            if (_animal != AnimalType.Fish && _animal != AnimalType.Dog) {
                 revert("Invalid animal for men");
             }
         }
 
-        if (_gender == Gender.Female) {
-            if (_animal == AnimalType.Cat && age < 40) {
-                revert("Invalid animal for women under 40");
-            }
-        }
-
-        if (isBorrowing[msg.sender] != AnimalType.None) {
-            revert("Already adopted a pet");
-        }
-
-        if (userAge[msg.sender] == 0) userAge[msg.sender] = age;
-        if (userGender[msg.sender] == Gender.None)
-            userGender[msg.sender] = _gender;
-
-        if (userAge[msg.sender] != age) {
-            revert("Invalid Age");
-        }
-
-        if (userGender[msg.sender] != _gender) {
-            revert("Invalid Gender");
-        }
-
-        isBorrowing[msg.sender] = _animal;
+        u.animal = _animal;
         uint count = animalCounts[_animal];
         animalCounts[_animal] = count - 1;
         emit Borrowed(_animal);
     }
 
-    function giveBackAnimal() external alreadyBorrowing {
-        AnimalType borrowedAnimal = isBorrowing[msg.sender];
-        uint count = animalCounts[borrowedAnimal];
-        animalCounts[borrowedAnimal] = count + 1;
-        emit Returned(borrowedAnimal);
-        isBorrowing[msg.sender] = AnimalType.None;
+    function giveBackAnimal() external {
+        User storage u = userInfo[msg.sender];
+        if (u.animal == AnimalType.None) {
+            revert("No borrowed pets");
+        }
+        uint count = animalCounts[u.animal];
+        animalCounts[u.animal] = count + 1;
+        emit Returned(u.animal);
+        u.animal = AnimalType.None;
     }
 }
