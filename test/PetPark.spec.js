@@ -41,7 +41,7 @@ describe("PetPark", function () {
 		it("should revert when invalid animal is provided", async function () {
 			await expect(
 				petPark.connect(owner).add(AnimalType.None, 5)
-			).to.be.revertedWith("Invalid animal");
+			).to.be.revertedWith("Invalid animal type");
 		});
 
 		it("should emit added event when pet is added", async function () {
