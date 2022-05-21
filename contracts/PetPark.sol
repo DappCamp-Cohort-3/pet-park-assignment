@@ -35,7 +35,7 @@ contract PetPark {
     event Borrowed(AnimalType _animalType);
     event Returned(AnimalType _animalType);
 
-    mapping(AnimalType => uint) public animalCount;
+    mapping(AnimalType => uint) public animalCounts;
     mapping(address => Borrower) public borrowers;
 
     constructor(){
@@ -44,21 +44,22 @@ contract PetPark {
 
     function add(AnimalType _animalType, uint count) public onlyOwner {
         require(uint(_animalType) > 0, "Invalid animal");
-        animalCount[_animalType] = animalCount[_animalType] + count;
+        animalCounts[_animalType] = animalCounts[_animalType] + count;
         emit Added(_animalType, count);
     }
 
     function borrow(uint _age, Gender _gender, AnimalType _animalType) external {
+        Borrower memory currentUser = borrowers[msg.sender];
         require(_age > 0, "Invalid Age");
         require(uint(_animalType) > 0, "Invalid animal type");
-        require(animalCount[_animalType] > 0, "Selected animal not available");
-        if (borrowers[msg.sender].animal != AnimalType.NONE && _age != borrowers[msg.sender].age) {
+        require(animalCounts[_animalType] > 0, "Selected animal not available");
+        if (currentUser.animal != AnimalType.NONE && _age != currentUser.age) {
             revert("Invalid Age");
         }
-        if (borrowers[msg.sender].animal != AnimalType.NONE && _gender != borrowers[msg.sender].gender) {
+        if (currentUser.animal != AnimalType.NONE && _gender != currentUser.gender) {
             revert("Invalid Gender");
         }
-        require(borrowers[msg.sender].animal == AnimalType.NONE, "Already adopted a pet");
+        require(currentUser.animal == AnimalType.NONE, "Already adopted a pet");
         if (_gender == Gender.Male && (_animalType != AnimalType.Fish && _animalType != AnimalType.Dog)){
             revert("Invalid animal for men");
         }
@@ -67,17 +68,17 @@ contract PetPark {
         }
         Borrower memory currentBorrower = Borrower(_animalType, _gender, _age);
         borrowers[msg.sender] = currentBorrower;
-        animalCount[_animalType] = animalCount[_animalType] - 1;
+        animalCounts[_animalType] = animalCounts[_animalType] - 1;
         emit Borrowed(_animalType);
     }
 
     function giveBackAnimal() public {
         Borrower memory currentBorrower = borrowers[msg.sender];
-        require(borrowers[msg.sender].animal != AnimalType.NONE, "No borrowed pets");
+        require(currentBorrower.animal != AnimalType.NONE, "No borrowed pets");
         // require(currentBorrower.animal != AnimalType.NONE, "No borrowed pets");
-        animalCount[currentBorrower.animal] = animalCount[currentBorrower.animal] + 1;
-        emit Returned(borrowers[msg.sender].animal);
-        borrowers[msg.sender].animal = AnimalType.NONE;
+        animalCounts[currentBorrower.animal] = animalCounts[currentBorrower.animal] + 1;
+        emit Returned(currentBorrower.animal);
+        currentBorrower.animal = AnimalType.NONE;
 
     }
 }
