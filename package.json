@@ -11,5 +11,8 @@
 	"scripts": {
 		"compile": "npx hardhat compile",
 		"test": "npx hardhat test"
+	},
+	"dependencies": {
+		"node-gyp": "^9.0.0"
 	}
 }
