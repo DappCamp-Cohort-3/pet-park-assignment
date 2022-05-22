@@ -6,19 +6,20 @@ contract PetPark {
 
     address owner;
 
-    enum Gender {Male, Female}
     enum AnimalType {None, Fish, Cat, Dog, Rabbit, Parrot}
 
     struct Person {
-        uint Age;
-        Gender gender;
+        uint age;
+        uint gender;
+        AnimalType AnimalBorrowed;
+        bool hasBorrowed;
         }
 
-    mapping (uint => uint) CountByAnimalType;
+    mapping (AnimalType => uint) CountByAnimalType;
     mapping (address => Person) PersonByAddress;
     mapping (address => uint) BorrowedByAddress;
 
-    event Added (uint indexed animalType, uint indexed count);
+    event Added (AnimalType indexed animalType, uint indexed count);
     event Borrowed (uint indexed animalType);
     event Returned  (uint indexed animalType);
 
@@ -27,36 +28,48 @@ contract PetPark {
     }
     
     modifier onlyOwner() {
-        require(msg.sender == owner, "No animals owned.");
+        require(msg.sender == owner, "Not an owner.");
         _;
         }
     
     function add (uint _AnimalType, uint _AnimalCount) public onlyOwner {
         AnimalType ThisAnimalType = AnimalType(_AnimalType);
-        require(ThisAnimalType != AnimalType.None,"Invalid animal.");
-        CountByAnimalType[_AnimalType] = _AnimalCount;
+        require(ThisAnimalType != AnimalType.None,"Invalid animal type");
+        CountByAnimalType[ThisAnimalType] = _AnimalCount;
 
-        emit Added(_AnimalType, CountByAnimalType[_AnimalType]);
+        emit Added(ThisAnimalType, CountByAnimalType[ThisAnimalType]);
     }
     
+
     function borrow (uint _Age, uint _gender, uint _AnimalType) public {
-        require(BorrowedByAddress[msg.sender]==0, "You can only borrow one animal at a time.");
+        require(_Age > 0,"Invalid Age");
+        //AnimalType ThisAnimalType = AnimalType(_AnimalType);
+        //require(CountByAnimalType[ThisAnimalType]==0,"Selected animal not available");
+        require(BorrowedByAddress[msg.sender]==0, "Already adopted a pet");
+        require(_AnimalType >0, "Invalid animal type");
+        if(PersonByAddress[msg.sender].hasBorrowed) {
+            require(PersonByAddress[msg.sender].age <= _Age, "Invalid Age");
+            require(PersonByAddress[msg.sender].gender == _gender, "Invalid Gender");
+        }
         if (BorrowedByAddress[msg.sender]>0) {giveBackAnimal();}
         if (_gender == 0) {
-            require(_AnimalType == 3 || _AnimalType == 1, "Men can only borrow Dogs or Fish I guess");
+            require(_AnimalType == 3 || _AnimalType == 1, "Invalid animal for men");
         } else if (_gender == 1 && _Age < 40) {
-            require(_AnimalType != 2, "Women under 40 cannot borrow cats");
+            require(_AnimalType != 2, "Invalid animal for women under 40");
         }
         
         BorrowedByAddress[msg.sender]=_AnimalType;
+        PersonByAddress[msg.sender] = Person(_Age,_gender,AnimalType(_AnimalType),true);
+        
         emit Borrowed(_AnimalType);
         }
     
     function giveBackAnimal() public {
-        require(BorrowedByAddress[msg.sender]>0, "No animal to give back.");
+        require(BorrowedByAddress[msg.sender]>0, "No borrowed pets");
         uint AnimalTypeReturned = BorrowedByAddress[msg.sender];
         BorrowedByAddress[msg.sender]=0;
-        CountByAnimalType[AnimalTypeReturned]++;
+        AnimalType ThisAnimalType = AnimalType(AnimalTypeReturned);
+        CountByAnimalType[ThisAnimalType]++;
         emit Returned(AnimalTypeReturned);
     }
 }
