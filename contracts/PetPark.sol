@@ -21,6 +21,7 @@ contract PetPark {
         uint age;
         uint petCount;
         bool exists;
+        AnimalType animalType;
     }
 
     event Added(AnimalType animalType, uint animalCount);
@@ -51,7 +52,7 @@ contract PetPark {
         if (borrowers[msg.sender].exists) {
             require(borrowers[msg.sender].age == _age, "Invalid Age");
             require(borrowers[msg.sender].gender == _gender, "Invalid Gender");
-            require(borrowers[msg.sender].petCount==0,"Already adopted a pet");
+            require(borrowers[msg.sender].petCount == 0, "Already adopted a pet");
         }
         if (_gender == Gender.MALE) {
             require(_animalType == AnimalType.FISH || _animalType == AnimalType.DOG, "Invalid animal for men");
@@ -66,13 +67,22 @@ contract PetPark {
         borrowers[msg.sender].age = _age;
         borrowers[msg.sender].gender = _gender;
         borrowers[msg.sender].exists = true;
-        borrowers[msg.sender].petCount=1;
+        borrowers[msg.sender].petCount = 1;
+        borrowers[msg.sender].animalType = _animalType;
         emit Borrowed(_animalType);
     }
 
+    function animalCounts(AnimalType _animalType) view external returns (uint){
+        return animals[_animalType].count;
+    }
 
     function giveBackAnimal() external {
-
+        require(borrowers[msg.sender].exists, "No borrowed pets");
+        AnimalType returnedAnimalType = borrowers[msg.sender].animalType;
+        animals[returnedAnimalType].count += 1;
+        borrowers[msg.sender].animalType = AnimalType.NONE;
+        borrowers[msg.sender].petCount = 0;
+        emit Returned(returnedAnimalType);
     }
 
 
