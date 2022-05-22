@@ -2,7 +2,9 @@
 
 ## Goal
 
-The goal of this exercise is to develop a pet park smart contract. The basic structure of this contract has been laid out for you in `contracts/PetPark.sol`. We can have 5 kinds of animals in our pet park
+The goal of this exercise is to develop a pet park smart contract. The specification of the contract is described in this readme and by the tests at `tests/PetPark.spec.js`. Once you implement the contract correctly, all the tests should pass.
+
+We can have 5 kinds of animals in our pet park
 
 -   Fish (AnimalType: 1)
 -   Cat (AnimalType: 2)
@@ -34,11 +36,6 @@ Complete this contract with following specifications for each function
 ## Evaluation
 
 -   Create a fork of this repo
--   Create a new branch with your name. You can use the following command
-
-    ```
-    git checkout -b my-name
-    ```
 
 -   Install all dependencies
     ```
@@ -50,7 +47,7 @@ Complete this contract with following specifications for each function
     ```
     npm test
     ```
--   Create a pull request from your forked repo to main branch of original repo to run the github workflow.
+-   Create a pull request from your forked repo to main branch of original repo to run the github workflow. The name of the pull request should be in the format `YOUR_NAME - Pet Park Assignment`
 
 ## Note
 
