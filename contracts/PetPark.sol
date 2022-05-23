@@ -84,11 +84,7 @@ contract PetPark {
             revert("Invalid Age");
         }
 
-        if (
-            u.gender != _gender ||
-            (u.gender == Gender.Female && _gender == Gender.Male) ||
-            (u.gender == Gender.Male && _gender == Gender.Female)
-        ) {
+        if (u.gender != _gender) {
             revert("Invalid Gender");
         }
 
