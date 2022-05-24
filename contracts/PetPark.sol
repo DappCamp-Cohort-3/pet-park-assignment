@@ -35,22 +35,26 @@ contract PetPark {
     function add (uint _AnimalType, uint _AnimalCount) public onlyOwner {
         AnimalType ThisAnimalType = AnimalType(_AnimalType);
         require(ThisAnimalType != AnimalType.None,"Invalid animal type");
-        CountByAnimalType[ThisAnimalType] = _AnimalCount;
+        CountByAnimalType[ThisAnimalType] += _AnimalCount;
 
         emit Added(ThisAnimalType, CountByAnimalType[ThisAnimalType]);
     }
     
+    function animalCounts(uint _AnimalType) public view returns (uint) {
+        AnimalType ThisAnimalType = AnimalType(_AnimalType);
+        return CountByAnimalType[ThisAnimalType];
+    }
 
     function borrow (uint _Age, uint _gender, uint _AnimalType) public {
         require(_Age > 0,"Invalid Age");
-        //AnimalType ThisAnimalType = AnimalType(_AnimalType);
-        //require(CountByAnimalType[ThisAnimalType]==0,"Selected animal not available");
-        require(BorrowedByAddress[msg.sender]==0, "Already adopted a pet");
         require(_AnimalType >0, "Invalid animal type");
+        AnimalType ThisAnimalType = AnimalType(_AnimalType);
+        require(CountByAnimalType[ThisAnimalType]>0,"Selected animal not available");
         if(PersonByAddress[msg.sender].hasBorrowed) {
-            require(PersonByAddress[msg.sender].age <= _Age, "Invalid Age");
+            require(PersonByAddress[msg.sender].age == _Age, "Invalid Age");
             require(PersonByAddress[msg.sender].gender == _gender, "Invalid Gender");
         }
+        require(BorrowedByAddress[msg.sender]==0, "Already adopted a pet");
         if (BorrowedByAddress[msg.sender]>0) {giveBackAnimal();}
         if (_gender == 0) {
             require(_AnimalType == 3 || _AnimalType == 1, "Invalid animal for men");
@@ -60,7 +64,7 @@ contract PetPark {
         
         BorrowedByAddress[msg.sender]=_AnimalType;
         PersonByAddress[msg.sender] = Person(_Age,_gender,AnimalType(_AnimalType),true);
-        
+        CountByAnimalType[ThisAnimalType]--;
         emit Borrowed(_AnimalType);
         }
     
