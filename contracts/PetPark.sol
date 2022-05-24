@@ -88,10 +88,16 @@ contract PetPark {
             revert("Invalid Gender");
         }
 
+        if (u.age != 0 && u.age == _age) {
+            if (u.gender == _gender) {
+                if (u.animal != AnimalType.None) {
+                    revert("Already adopted a pet");
+                }
+            }
+        }
+
         u.age = _age;
         u.gender = _gender;
-
-        require(u.animal == AnimalType.None, "Already adopted a pet");
 
         if (u.gender == Gender.Female && u.age < 40) {
             if (_animal == AnimalType.Cat) {
