@@ -80,20 +80,16 @@ contract PetPark {
     {
         User storage u = userInfo[msg.sender];
 
-        if (u.age != _age && u.age != 0) {
-            revert("Invalid Age");
-        }
-
-        if (u.gender != _gender) {
-            revert("Invalid Gender");
-        }
-
-        if (u.age != 0 && u.age == _age) {
-            if (u.gender == _gender) {
-                if (u.animal != AnimalType.None) {
-                    revert("Already adopted a pet");
-                }
+        if (u.age != 0) {
+            if (u.age != _age) {
+                revert("Invalid Age");
             }
+
+            if (u.gender != _gender) {
+                revert("Invalid Gender");
+            }
+
+            require(u.animal == AnimalType.None, "Already adopted a pet");
         }
 
         u.age = _age;
