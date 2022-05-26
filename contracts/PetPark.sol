@@ -28,6 +28,7 @@ contract PetPark {
     mapping(address => CanBorrow) public userCanBorrow;
     event Added(AnimalType animal, uint256 AnimalCount);
     event Borrowed(AnimalType animal);
+    event Returned(AnimalType animal);
     mapping(AnimalType => uint256) public animalCounts;
     mapping(address => uint256) public userBorrowCount;
     mapping(address => UserInfo) public usersAllowedBorrow;
@@ -95,5 +96,6 @@ contract PetPark {
     function giveBackAnimal() public {
         require(userBorrowCount[msg.sender] != 0, "No borrowed pets");
         animalCounts[usersAllowedBorrow[msg.sender].animal] += 1;
+        emit Returned(usersAllowedBorrow[msg.sender].animal);
     }
 }
