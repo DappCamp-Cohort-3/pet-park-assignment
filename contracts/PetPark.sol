@@ -22,7 +22,7 @@ contract PetPark {
     }
     struct Borrower {
         Gender gender;
-        uint256 age;
+        uint8 age;
         AnimalType animalType;
     }
 
@@ -39,7 +39,7 @@ contract PetPark {
     }
 
     function add(AnimalType _animalType, uint256 _animalcount)
-        public
+        external
         onlyOwner
     {
         require(uint256(_animalType) > 0, "Invalid animal");
@@ -47,20 +47,24 @@ contract PetPark {
         emit Added(_animalType, _animalcount);
     }
 
-    function giveBackAnimal() public {
+    function giveBackAnimal() external {
+        Borrower memory borrower = borrowers[msg.sender];
         require(
             borrowers[msg.sender].animalType != AnimalType.NONE,
             "No borrowed pets"
         );
-        animalCounts[borrowers[msg.sender].animalType] += 1;
-        emit Returned(borrowers[msg.sender].animalType);
+        animalCounts[borrower.animalType] += 1;
+        borrower.animalType = AnimalType.NONE;
+        emit Returned(borrower.animalType);
     }
 
     function borrow(
-        uint256 _age,
+        uint8 _age,
         Gender _gender,
         AnimalType _animalType
-    ) public {
+    ) external {
+        Borrower memory borrower = borrowers[msg.sender];
+
         require(
             _animalType > AnimalType.NONE && _animalType <= AnimalType.PARROT,
             "Invalid animal type"
@@ -68,13 +72,13 @@ contract PetPark {
         require(_age > 0, "Invalid Age");
         require(animalCounts[_animalType] > 0, "Selected animal not available");
 
-        if (borrowers[msg.sender].age > 0) {
-            require(borrowers[msg.sender].age == _age, "Invalid Age");
-            require(borrowers[msg.sender].gender == _gender, "Invalid Gender");
+        if (borrower.age > 0) {
+            require(borrower.age == _age, "Invalid Age");
+            require(borrower.gender == _gender, "Invalid Gender");
         }
 
         require(
-            borrowers[msg.sender].animalType == AnimalType.NONE,
+            borrower.animalType == AnimalType.NONE,
             "Already adopted a pet"
         );
         if (_gender == Gender.MALE)
