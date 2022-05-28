@@ -124,6 +124,10 @@ describe("PetPark", function () {
 				.connect(account1)
 				.borrow(24, Gender.Male, AnimalType.Fish);
 
+			await petPark
+				.connect(account1)
+				.giveBackAnimal();
+
 			await expect(
 				petPark
 					.connect(account1)
